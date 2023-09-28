@@ -80,6 +80,66 @@ async function deletarTodasAnotacao() {
     }
 }
 
+async function buscarTodasAnotacoesParaAtualizar() {
+    if (db == undefined) {
+        console.log("O banco de dados está fechado.");
+    }
+    const tx = await db.transaction('anotacao', 'readonly');
+    const store = await tx.objectStore('anotacao');
+    const anotacoes = await store.getAll();
+    if (anotacoes) {
+        const selectAnotacao = document.getElementById('anotacaoParaAtualizar');
+        selectAnotacao.innerHTML = "<option value=''>Selecione uma Anotação</option>";
+        anotacoes.forEach(anotacao => {
+            const option = document.createElement('option');
+            option.value = anotacao.titulo;
+            option.textContent = `${anotacao.titulo} - ${anotacao.data}`;
+            selectAnotacao.appendChild(option);
+        });
+    }
+}
+
+document.getElementById('btnCarregar').addEventListener('click', buscarTodasAnotacoesParaAtualizar);
+document.getElementById('btnAtualizar').addEventListener('click', async () => {
+    const tituloParaAtualizar = document.getElementById('anotacaoParaAtualizar').value;
+    const novaDescricao = document.getElementById('novaDescricao').value;
+    const novaCategoria = document.getElementById('novaCategoria').value;
+    const novaData = document.getElementById('novaData').value;
+
+    if (!tituloParaAtualizar) {
+        console.log('Selecione uma anotação para atualizar.');
+        return;
+    }
+
+    const tx = await db.transaction('anotacao', 'readwrite');
+    const store = tx.objectStore('anotacao');
+
+    try {
+        const anotacaoExistente = await store.get(tituloParaAtualizar);
+        if (!anotacaoExistente) {
+            console.log('A anotação selecionada não foi encontrada.');
+            return;
+        }
+        if (novaDescricao) {
+            anotacaoExistente.descricao = novaDescricao;
+        }
+        if (novaCategoria) {
+            anotacaoExistente.categoria = novaCategoria;
+        }
+        if (novaData) {
+            anotacaoExistente.data = novaData;
+        }
+
+        await store.put(anotacaoExistente);
+        await tx.done;
+        console.log('Anotação atualizada com sucesso!');
+        limparCampos();
+    } catch (error) {
+        console.error('Erro ao atualizar anotação:', error);
+        tx.abort();
+    }
+});
+
 
 function limparCampos() {
     document.getElementById("titulo").value = '';

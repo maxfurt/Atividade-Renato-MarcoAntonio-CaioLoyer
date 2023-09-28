@@ -20,6 +20,7 @@
             <img src="/images/capibaraNotes256.png" alt="pwa" width="256" height="256">
         </div>
         <div id="entrada">
+            <h1>Cadastrar</h1>
             <input type="text" id="titulo" placeholder="Titulo">
             <select id="categoria" placeholder="Categoria">
                 <option>Trabalho</option>
@@ -28,9 +29,19 @@
             </select>
             <textarea id="descricao" cols="30" rows="10" placeholder="Descrição"></textarea>
             <input type="date" id="data">
+            <h1>Atualizar</h1>
+            <select id="anotacaoParaAtualizar" placeholder="Selecione uma Anotação"></select>
+            <input type="text" id="novaDescricao" placeholder="Nova Descrição">
+            <select id="novaCategoria" placeholder="Nova Categoria">
+                <option>Trabalho</option>
+                <option>Data importante</option>
+                <option>Não esquecer</option>
+            </select>
+            <input type="date" id="novaData">
             <button id="btnCadastro">Cadastrar</button>
             <button id="btnCarregar">Carregar Minhas Anotações</button>
             <button id="btnDeletar">Deletar Minhas Anotações</button>
+            <button id="btnAtualizar">Atualizar Anotação</button>
         </div>
         <div id="resultados"></div>
     </div>
