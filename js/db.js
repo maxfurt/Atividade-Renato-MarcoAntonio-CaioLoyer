@@ -26,6 +26,7 @@ window.addEventListener('DOMContentLoaded', async event =>{
     criarDB();
     document.getElementById('btnCadastro').addEventListener('click', adicionarAnotacao);
     document.getElementById('btnCarregar').addEventListener('click', buscarTodasAnotacoes);
+    document.getElementById('btnDeletar').addEventListener('click', deletarTodasAnotacao);
 });
 
 async function buscarTodasAnotacoes(){
@@ -66,8 +67,23 @@ async function adicionarAnotacao() {
     }
 }
 
+async function deletarTodasAnotacao() {
+    const tx = await db.transaction('anotacao', 'readwrite');
+    const store = tx.objectStore('anotacao');
+    try {
+        await store.clear(); 
+        await tx.done;
+        console.log('Todas as anotações foram excluídas com sucesso!');
+    } catch (error) {
+        console.error('Erro ao excluir todas as anotações:', error);
+        tx.abort();
+    }
+}
+
+
 function limparCampos() {
     document.getElementById("titulo").value = '';
+    document.getElementById("categoria").value = '';
     document.getElementById("descricao").value = '';
     document.getElementById("data").value = '';
 }
