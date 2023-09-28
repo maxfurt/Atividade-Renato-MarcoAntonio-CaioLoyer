@@ -50,4 +50,3 @@ const imageRoute = new Route(({ request }) => {
 }));
 
 registerRoute(imageRoute);
-
