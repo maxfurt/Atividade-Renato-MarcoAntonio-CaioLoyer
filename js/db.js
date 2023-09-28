@@ -67,18 +67,35 @@ async function adicionarAnotacao() {
     }
 }
 
-async function deletarTodasAnotacao() {
-    const tx = await db.transaction('anotacao', 'readwrite');
-    const store = tx.objectStore('anotacao');
-    try {
-        await store.clear(); 
-        await tx.done;
-        console.log('Todas as anotações foram excluídas com sucesso!');
-    } catch (error) {
-        console.error('Erro ao excluir todas as anotações:', error);
-        tx.abort();
+document.getElementById('btnBuscar').addEventListener('click', async () => {
+    const tituloParaBuscar = document.getElementById('tituloBusca').value;
+
+    if (!tituloParaBuscar) {
+        console.log('Digite um título para buscar.');
+        return;
     }
-}
+
+    const tx = await db.transaction('anotacao', 'readonly');
+    const store = tx.objectStore('anotacao');
+
+    try {
+        const anotacaoEncontrada = await store.get(tituloParaBuscar);
+        if (anotacaoEncontrada) {
+            const divResultado = `
+                <div class="item">
+                    <p>Anotação Encontrada</p>
+                    <p>${anotacaoEncontrada.titulo} - ${anotacaoEncontrada.data} </p>
+                    <p>${anotacaoEncontrada.categoria}</p>
+                    <p>${anotacaoEncontrada.descricao}</p>
+                </div>`;
+            listagem(divResultado);
+        } else {
+            console.log('Anotação não encontrada.');
+        }
+    } catch (error) {
+        console.error('Erro ao buscar anotação:', error);
+    }
+});
 
 async function buscarTodasAnotacoesParaAtualizar() {
     if (db == undefined) {
@@ -140,6 +157,18 @@ document.getElementById('btnAtualizar').addEventListener('click', async () => {
     }
 });
 
+async function deletarTodasAnotacao() {
+    const tx = await db.transaction('anotacao', 'readwrite');
+    const store = tx.objectStore('anotacao');
+    try {
+        await store.clear(); 
+        await tx.done;
+        console.log('Todas as anotações foram excluídas com sucesso!');
+    } catch (error) {
+        console.error('Erro ao excluir todas as anotações:', error);
+        tx.abort();
+    }
+}
 
 function limparCampos() {
     document.getElementById("titulo").value = '';
