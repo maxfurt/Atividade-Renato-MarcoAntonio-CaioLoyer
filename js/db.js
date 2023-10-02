@@ -26,7 +26,7 @@ window.addEventListener('DOMContentLoaded', async event =>{
     criarDB();
     document.getElementById('btnCadastro').addEventListener('click', adicionarAnotacao);
     document.getElementById('btnCarregar').addEventListener('click', buscarTodasAnotacoes);
-    document.getElementById('btnDeletar').addEventListener('click', deletarTodasAnotacao);
+    document.getElementById('btnDeletar').addEventListener('click', deletarAnotacao);
 });
 
 async function buscarTodasAnotacoes(){
@@ -43,6 +43,7 @@ async function buscarTodasAnotacoes(){
                     <p>${anotacao.titulo} - ${anotacao.data} </p>
                     <p>${anotacao.categoria}</p>
                     <p>${anotacao.descricao}</p>
+                    <button class="btnDeletar" data-titulo="${anotacao.titulo}">Deletar</button>
                    </div>`;
         });
         listagem(divLista.join(' '));
@@ -87,6 +88,7 @@ document.getElementById('btnBuscar').addEventListener('click', async () => {
                     <p>${anotacaoEncontrada.titulo} - ${anotacaoEncontrada.data} </p>
                     <p>${anotacaoEncontrada.categoria}</p>
                     <p>${anotacaoEncontrada.descricao}</p>
+                    <button class="btnDeletar" data-titulo="${anotacaoEncontrada.titulo}">Deletar</button>
                 </div>`;
             listagem(divResultado);
         } else {
@@ -157,18 +159,6 @@ document.getElementById('btnAtualizar').addEventListener('click', async () => {
     }
 });
 
-async function deletarTodasAnotacao() {
-    const tx = await db.transaction('anotacao', 'readwrite');
-    const store = tx.objectStore('anotacao');
-    try {
-        await store.clear(); 
-        await tx.done;
-        console.log('Todas as anotações foram excluídas com sucesso!');
-    } catch (error) {
-        console.error('Erro ao excluir todas as anotações:', error);
-        tx.abort();
-    }
-}
 
 function limparCampos() {
     document.getElementById("titulo").value = '';
@@ -179,4 +169,29 @@ function limparCampos() {
 
 function listagem(text){
     document.getElementById('resultados').innerHTML = text;
+}
+
+document.getElementById('resultados').addEventListener('click', async (event) => {
+    if (event.target.classList.contains('btnDeletar')) {
+        const tituloParaDeletar = event.target.getAttribute('data-titulo');
+        if (tituloParaDeletar) {
+            if (confirm(`Tem certeza de que deseja excluir a anotação "${tituloParaDeletar}"?`)) {
+                await deletarAnotacao(tituloParaDeletar);
+                buscarTodasAnotacoes();
+            }
+        }
+    }
+});
+
+async function deletarAnotacao(tituloParaDeletar) {
+    const tx = await db.transaction('anotacao', 'readwrite');
+    const store = tx.objectStore('anotacao');
+    try {
+        await store.delete(tituloParaDeletar);
+        await tx.done;
+        console.log(`Anotação "${tituloParaDeletar}" excluída com sucesso!`);
+    } catch (error) {
+        console.error('Erro ao excluir anotação:', error);
+        tx.abort();
+    }
 }
